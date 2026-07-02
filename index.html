@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bouwbudget-check — jouw sleutel-op-de-deur woning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     CONFIG — VUL DIT IN (zie chat voor uitleg)
+     Deze 4 waarden bepalen naar wie de leads gaan.
+     ============================================================ */
+  :root{
+    --ink:#1F2A24; --pine:#2C4A3B; --pine-2:#3B6350;
+    --paper:#F5F2EA; --card:#FFFFFF; --card-2:#FBFAF5;
+    --brass:#A9793B; --brass-soft:#C79A5A;
+    --sage:#6E8A72; --taupe:#8A7A5C; --taupe-2:#B6A784; --slate:#7C8A93;
+    --line:#E3DCCB; --line-2:#D2C9B4; --muted:#6E6A5E;
+    --ok:#2C7A4B; --warn:#B0722A;
+    --serif:'Fraunces',Georgia,'Times New Roman',serif;
+    --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --radius:14px; --shadow:0 1px 2px rgba(31,42,36,.05),0 8px 30px rgba(31,42,36,.07);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:0 20px;}
+
+  /* ---------- Hero ---------- */
+  header.hero{padding:56px 0 30px;}
+  .eyebrow{
+    font-size:12.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--brass); font-weight:600; margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--serif); font-weight:500; font-size:clamp(32px,5.4vw,52px);
+    line-height:1.04; letter-spacing:-.01em; margin:0 0 16px; max-width:16ch;
+  }
+  h1 em{font-style:italic; color:var(--pine);}
+  .lede{font-size:clamp(16px,2.2vw,19px); color:var(--muted); max-width:52ch; margin:0;}
+  .advisor-tag{
+    display:inline-flex; align-items:center; gap:10px; margin-top:22px;
+    background:var(--card); border:1px solid var(--line); border-radius:999px;
+    padding:8px 8px 8px 8px; font-size:14px; box-shadow:var(--shadow);
+  }
+  .advisor-tag .dot{width:34px;height:34px;border-radius:50%;background:var(--pine);
+    color:#fff;display:grid;place-items:center;font-family:var(--serif);font-size:16px;}
+  .advisor-tag b{font-weight:600;}
+  .advisor-tag span{color:var(--muted);}
+
+  /* ---------- Layout ---------- */
+  .grid{display:grid; grid-template-columns:1fr; gap:26px; padding:14px 0 60px;}
+  @media(min-width:900px){
+    .grid{grid-template-columns:1.05fr .95fr; align-items:start; gap:40px;}
+  }
+
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);}
+  .step{padding:26px 24px; border-bottom:1px solid var(--line);}
+  .step:last-child{border-bottom:0;}
+  .step .n{
+    font-family:var(--serif); font-style:italic; color:var(--brass);
+    font-size:15px; margin-right:8px;
+  }
+  .step h2{font-family:var(--serif); font-weight:500; font-size:20px; margin:0 0 4px; display:flex; align-items:baseline;}
+  .step .hint{color:var(--muted); font-size:14px; margin:0 0 18px;}
+
+  label.q{display:block; font-weight:600; font-size:14.5px; margin:0 0 9px;}
+
+  /* segmented */
+  .seg{display:flex; gap:8px; flex-wrap:wrap;}
+  .seg button{
+    flex:1 1 30%; min-width:96px; cursor:pointer; font-family:var(--sans);
+    background:var(--card-2); border:1.5px solid var(--line-2); border-radius:11px;
+    padding:12px 10px; text-align:left; transition:.15s; color:var(--ink);
+  }
+  .seg button .t{display:block; font-weight:600; font-size:14px;}
+  .seg button .s{display:block; font-size:12px; color:var(--muted); margin-top:2px;}
+  .seg button:hover{border-color:var(--pine-2);}
+  .seg button[aria-pressed="true"]{border-color:var(--pine); background:#EEF3EC; box-shadow:inset 0 0 0 1px var(--pine);}
+  .seg button:focus-visible{outline:3px solid var(--brass-soft); outline-offset:2px;}
+
+  .row{display:flex; gap:16px; flex-wrap:wrap; margin-top:18px;}
+  .row > div{flex:1 1 180px;}
+
+  .slidewrap{margin-top:16px;}
+  .slidewrap .val{font-family:var(--serif); font-size:22px; color:var(--pine); font-weight:500;}
+  input[type=range]{width:100%; accent-color:var(--pine); margin-top:6px;}
+
+  .field{position:relative; margin-top:6px;}
+  .field .pre{position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:15px;}
+  input[type=text], input[type=email], input[type=tel], select{
+    width:100%; font-family:var(--sans); font-size:15px; color:var(--ink);
+    border:1.5px solid var(--line-2); border-radius:11px; padding:12px 13px; background:var(--card-2);
+  }
+  input.euro{padding-left:26px;}
+  input:focus, select:focus{outline:3px solid var(--brass-soft); outline-offset:1px; border-color:var(--pine);}
+
+  .toggle{display:flex; gap:8px; margin-bottom:2px;}
+  .toggle button{flex:1; cursor:pointer; font-family:var(--sans); font-size:14px; font-weight:600;
+    background:var(--card-2); border:1.5px solid var(--line-2); border-radius:11px; padding:11px; color:var(--ink);}
+  .toggle button[aria-pressed="true"]{background:var(--pine); color:#fff; border-color:var(--pine);}
+  .toggle button:focus-visible{outline:3px solid var(--brass-soft); outline-offset:2px;}
+
+  /* ---------- Result card ---------- */
+  .result{position:sticky; top:20px;}
+  .result .head{padding:22px 24px 6px;}
+  .result .head .label{font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--brass); font-weight:600;}
+  .total{font-family:var(--serif); font-weight:500; font-size:clamp(30px,6vw,42px); line-height:1; margin:6px 0 2px; letter-spacing:-.02em;}
+  .total-sub{color:var(--muted); font-size:13.5px;}
+  .band{color:var(--pine); font-weight:600;}
+
+  .bar{display:flex; height:16px; border-radius:8px; overflow:hidden; margin:20px 24px 14px; background:#EDE8DA;}
+  .bar span{height:100%; transition:width .35s cubic-bezier(.4,0,.2,1);}
+  .legend{padding:0 24px 6px; display:grid; grid-template-columns:1fr 1fr; gap:8px 18px;}
+  .legend .li{display:flex; align-items:center; justify-content:space-between; font-size:13px; gap:8px;}
+  .legend .li .k{display:flex; align-items:center; gap:8px; color:var(--ink);}
+  .legend .li .sw{width:11px;height:11px;border-radius:3px;flex:none;}
+  .legend .li .v{color:var(--muted); font-variant-numeric:tabular-nums;}
+
+  .fit{margin:14px 24px; padding:13px 15px; border-radius:11px; font-size:14px; border:1px solid var(--line);}
+  .fit.neutral{background:#F1EFE7;}
+  .fit.ok{background:#EAF4EC; border-color:#CBE4CF; color:#1E5233;}
+  .fit.warn{background:#FBF1E4; border-color:#EBD6B7; color:#7A4E17;}
+  .fit b{font-weight:600;}
+
+  /* ---------- Lead capture ---------- */
+  .capture{padding:22px 24px 26px; border-top:1px solid var(--line); background:var(--card-2); border-radius:0 0 var(--radius) var(--radius);}
+  .capture h3{font-family:var(--serif); font-weight:500; font-size:19px; margin:0 0 3px;}
+  .capture p.sub{color:var(--muted); font-size:13.5px; margin:0 0 16px;}
+  .capture .row{margin-top:0;}
+  .capture label.q{margin-top:14px;}
+  .consent{display:flex; gap:10px; align-items:flex-start; margin:16px 0 4px; font-size:12.5px; color:var(--muted); line-height:1.45;}
+  .consent input{margin-top:2px; accent-color:var(--pine); width:16px; height:16px; flex:none;}
+  .cta{display:flex; flex-direction:column; gap:10px; margin-top:16px;}
+  .btn{cursor:pointer; font-family:var(--sans); font-weight:600; font-size:15.5px; border:none; border-radius:12px; padding:15px; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:10px; transition:.15s;}
+  .btn.wa{background:#1DA851; color:#fff;}
+  .btn.wa:hover{background:#178a43;}
+  .btn.mail{background:var(--card); color:var(--pine); border:1.5px solid var(--pine);}
+  .btn.mail:hover{background:#EEF3EC;}
+  .btn[aria-disabled="true"]{opacity:.4; pointer-events:none;}
+  .btn:focus-visible{outline:3px solid var(--brass-soft); outline-offset:2px;}
+  .err{color:var(--warn); font-size:13px; margin-top:10px; min-height:1px;}
+
+  footer{padding:26px 0 60px; color:var(--muted); font-size:12px; line-height:1.6; max-width:80ch;}
+  footer strong{color:var(--ink); font-weight:600;}
+  .disc{border-top:1px solid var(--line); padding-top:20px;}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto;}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="eyebrow">Sleutel-op-de-deur · gratis budgetcheck</p>
+    <h1>Wat kost <em>jouw</em> droomwoning écht?</h1>
+    <p class="lede">Reken in twee minuten uit welk budget je nodig hebt om te bouwen — inclusief btw, architect, grond en de kosten die mensen vaak vergeten. Zonder verplichtingen.</p>
+    <div class="advisor-tag">
+      <span class="dot" id="advisorInitial">?</span>
+      <div><b id="advisorName">jouw bouwadviseur</b> <span>· <span id="advisorCompany">Woningen Compere</span></span></div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- ================= INPUT ================= -->
+    <form class="panel" id="inputs" novalidate>
+      <div class="step">
+        <h2><span class="n">01</span>Hoe groot wil je wonen?</h2>
+        <p class="hint">Kies een richting — je stelt de exacte oppervlakte zo bij.</p>
+        <label class="q">Type woning</label>
+        <div class="seg" role="group" aria-label="Type woning" id="sizeSeg">
+          <button type="button" data-m2="120" aria-pressed="false"><span class="t">Compact</span><span class="s">± 120 m² · 2 slpk</span></button>
+          <button type="button" data-m2="165" aria-pressed="true"><span class="t">Gezinswoning</span><span class="s">± 165 m² · 3 slpk</span></button>
+          <button type="button" data-m2="210" aria-pressed="false"><span class="t">Ruim</span><span class="s">± 210 m² · 4+ slpk</span></button>
+        </div>
+        <div class="slidewrap">
+          <label class="q" for="m2">Bewoonbare oppervlakte: <span class="val" id="m2val">165 m²</span></label>
+          <input type="range" id="m2" min="80" max="280" step="5" value="165">
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">02</span>Welke afwerking heb je in gedachten?</h2>
+        <p class="hint">Dit bepaalt de prijs per m². We rekenen met marktgemiddelden voor sleutel-op-de-deur.</p>
+        <div class="seg" role="group" aria-label="Afwerkingsniveau" id="finishSeg">
+          <button type="button" data-rate="1150" aria-pressed="false"><span class="t">Basis</span><span class="s">± €1.150/m²</span></button>
+          <button type="button" data-rate="1325" aria-pressed="true"><span class="t">Comfort</span><span class="s">± €1.325/m²</span></button>
+          <button type="button" data-rate="1550" aria-pressed="false"><span class="t">Premium</span><span class="s">± €1.550/m²</span></button>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">03</span>En de bouwgrond?</h2>
+        <p class="hint">De grond zit niet in de bouwprijs. Heb je er al één?</p>
+        <div class="toggle" role="group" aria-label="Bouwgrond" id="landToggle">
+          <button type="button" data-land="have" aria-pressed="true">Ik heb al een grond</button>
+          <button type="button" data-land="search" aria-pressed="false">Ik zoek nog</button>
+        </div>
+        <div class="row">
+          <div>
+            <label class="q" for="landPrice" id="landLbl">Prijs van de grond</label>
+            <div class="field"><span class="pre">€</span><input class="euro" type="text" inputmode="numeric" id="landPrice" placeholder="bv. 150.000"></div>
+          </div>
+          <div>
+            <label class="q" for="region">Regio</label>
+            <select id="region">
+              <option value="Limburg">Limburg</option>
+              <option value="Antwerpen">Antwerpen</option>
+              <option value="Vlaams-Brabant">Vlaams-Brabant</option>
+              <option value="Oost-Vlaanderen">Oost-Vlaanderen</option>
+              <option value="West-Vlaanderen">West-Vlaanderen</option>
+              <option value="Wallonië">Wallonië</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <h2><span class="n">04</span>Even scherpstellen <span style="font-weight:400;color:var(--muted);font-size:14px;font-family:var(--sans);margin-left:6px;">optioneel</span></h2>
+        <p class="hint">Handig om te zien of je plan haalbaar is en wanneer je wil starten.</p>
+        <div class="row">
+          <div>
+            <label class="q" for="budget">Beschikbaar totaalbudget</label>
+            <div class="field"><span class="pre">€</span><input class="euro" type="text" inputmode="numeric" id="budget" placeholder="bv. 450.000"></div>
+          </div>
+          <div>
+            <label class="q" for="timing">Wanneer wil je starten?</label>
+            <select id="timing">
+              <option value="Oriënterend">Ik ben aan het oriënteren</option>
+              <option value="Binnen 6 maanden">Binnen 6 maanden</option>
+              <option value="6 tot 12 maanden">Over 6 à 12 maanden</option>
+              <option value="Volgend jaar of later">Volgend jaar of later</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- ================= RESULT ================= -->
+    <div class="result">
+      <div class="panel">
+        <div class="head">
+          <div class="label">Geschat totaalbudget</div>
+          <div class="total" id="totalVal">—</div>
+          <div class="total-sub">realistische marge: <span class="band" id="bandVal">—</span> · incl. 21% btw</div>
+        </div>
+
+        <div class="bar" id="bar" aria-hidden="true"></div>
+        <div class="legend" id="legend"></div>
+
+        <div class="fit neutral" id="fit">Vul je gegevens in om je persoonlijke budget te zien.</div>
+
+        <div class="capture">
+          <h3>Ontvang je volledige raming</h3>
+          <p class="sub">Stuur je resultaat door en <span id="advisorNameInline">je bouwadviseur</span> bezorgt je een uitgewerkte offerte op maat — gratis en vrijblijvend.</p>
+          <div class="row">
+            <div>
+              <label class="q" for="cName">Naam</label>
+              <input type="text" id="cName" placeholder="Voor- en achternaam">
+            </div>
+            <div>
+              <label class="q" for="cTel">Telefoon</label>
+              <input type="tel" id="cTel" placeholder="bv. 0470 12 34 56">
+            </div>
+          </div>
+          <label class="q" for="cMail">E-mail</label>
+          <input type="email" id="cMail" placeholder="jij@voorbeeld.be">
+
+          <label class="consent" for="cConsent">
+            <input type="checkbox" id="cConsent">
+            <span>Ja, <span id="advisorNameConsent">de bouwadviseur</span> mag mij contacteren over mijn bouwproject. Mijn gegevens worden enkel daarvoor gebruikt.</span>
+          </label>
+
+          <div class="cta">
+            <a class="btn wa" id="waBtn" aria-disabled="true" target="_blank" rel="noopener">Verstuur via WhatsApp</a>
+            <a class="btn mail" id="mailBtn" aria-disabled="true">Of verstuur via e-mail</a>
+          </div>
+          <div class="err" id="err" role="alert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="disc">
+      <strong>Hoe we rekenen.</strong> De raming is <strong>indicatief</strong> en gebaseerd op gemiddelde marktprijzen voor sleutel-op-de-deur bouwen (basis ± €1.150, comfort ± €1.325, premium ± €1.550 per m² excl. btw). We rekenen 21% btw op de bouwsom, ± 5% architect­ereloon, een geschatte post voor keuken, aansluitingen, EPB-verslaggeving en omgevingsaanleg, en — indien je een grond invult — geschatte aankoopkosten (notaris + registratie, deze verschillen per gewest en situatie). Dit is <strong>geen bindende offerte</strong> en geen fiscaal of financieel advies. Werkelijke prijzen hangen af van je grond, plan, materialen en dossier; vraag altijd een offerte op maat.
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   1) VUL DEZE 4 WAARDEN IN — dit bepaalt naar wie de leads gaan
+   ============================================================ */
+const ADVISOR = {
+  name:     "Florence Maraite",                    // TODO: naam van je zus
+  company:  "Woningen Compere",           // eventueel aanpassen
+  whatsapp: "0031615350967",                // TODO: haar nr, internationaal, GEEN + of spaties (bv. 32470123456)
+  email:    "f.maraite@woningencompere.be"     // TODO: haar e-mailadres
+};
+
+/* ---------- vul advisor overal in ---------- */
+document.getElementById('advisorName').textContent = ADVISOR.name;
+document.getElementById('advisorNameInline').textContent = ADVISOR.name;
+document.getElementById('advisorNameConsent').textContent = ADVISOR.name;
+document.getElementById('advisorCompany').textContent = ADVISOR.company;
+document.getElementById('advisorInitial').textContent = (ADVISOR.name.trim()[0]||'?').toUpperCase();
+
+/* ============================================================
+   2) State + helpers
+   ============================================================ */
+const state = { m2:165, rate:1325, land:'have', landPrice:0, region:'Limburg', budget:0, timing:'Oriënterend' };
+
+const fmt = n => '€ ' + Math.round(n).toLocaleString('nl-BE');
+const parseEuro = s => { const n = parseInt(String(s).replace(/[^\d]/g,''),10); return isNaN(n)?0:n; };
+
+const SEG = [
+  { key:'bouw',    label:'Bouw (excl. btw)', color:'#2C4A3B' },
+  { key:'btw',     label:'Btw 21%',          color:'#6E8A72' },
+  { key:'arch',    label:'Architect ± 5%',   color:'#A9793B' },
+  { key:'grond',   label:'Bouwgrond',        color:'#8A7A5C' },
+  { key:'kosten',  label:'Aankoopkosten grond', color:'#B6A784' },
+  { key:'extra',   label:"Keuken · aansluitingen · EPB · tuin", color:'#7C8A93' },
+];
+
+function compute(){
+  const bouw   = state.m2 * state.rate;
+  const btw    = bouw * 0.21;
+  const arch   = bouw * 0.05;
+  const grond  = state.landPrice;
+  const kosten = grond > 0 ? grond * 0.12 : 0;   // notaris + registratie (indicatief, varieert per gewest)
+  const extra  = 38000;                          // keuken, aansluitingen, EPB, omgeving (indicatief)
+  const parts  = { bouw, btw, arch, grond, kosten, extra };
+  const total  = bouw + btw + arch + grond + kosten + extra;
+  return { parts, total };
+}
+
+function render(){
+  const { parts, total } = compute();
+
+  document.getElementById('totalVal').textContent = fmt(total);
+  document.getElementById('bandVal').textContent  = fmt(total*0.94) + ' – ' + fmt(total*1.06);
+
+  // stacked bar
+  const bar = document.getElementById('bar'); bar.innerHTML='';
+  const legend = document.getElementById('legend'); legend.innerHTML='';
+  SEG.forEach(s=>{
+    const v = parts[s.key]; if(v<=0) return;
+    const seg = document.createElement('span');
+    seg.style.width = (v/total*100)+'%'; seg.style.background = s.color;
+    bar.appendChild(seg);
+    const li = document.createElement('div'); li.className='li';
+    li.innerHTML = `<span class="k"><span class="sw" style="background:${s.color}"></span>${s.label}</span><span class="v">${fmt(v)}</span>`;
+    legend.appendChild(li);
+  });
+
+  // feasibility
+  const fit = document.getElementById('fit');
+  if(state.budget>0){
+    const diff = state.budget - total;
+    if(diff >= 0){
+      fit.className='fit ok';
+      fit.innerHTML = `<b>Goed nieuws — dit past binnen je budget.</b> Je houdt naar schatting ${fmt(diff)} over als buffer of voor extra's.`;
+    } else {
+      fit.className='fit warn';
+      fit.innerHTML = `<b>Je zit ± ${fmt(-diff)} boven je budget.</b> Kleiner bouwen, een soberdere afwerking of een goedkopere grond brengt dit dichterbij — precies waar een bouwadviseur bij helpt.`;
+    }
+  } else {
+    fit.className='fit neutral';
+    fit.innerHTML = `Dit budget hoort bij een woning van <b>± ${state.m2} m²</b> in <b>${state.region}</b>. Vul je budget in stap 4 in om te zien of je plan haalbaar is.`;
+  }
+  buildLinks();
+}
+
+/* ============================================================
+   3) Lead-links (WhatsApp + e-mail) — de prospect verstuurt zelf
+   ============================================================ */
+function summaryText(){
+  const { total } = compute();
+  const c = getContact();
+  const L = [];
+  L.push(`Hallo ${ADVISOR.name}, ik deed de bouwbudget-check en wil graag een offerte op maat.`);
+  L.push('');
+  L.push(`• Naam: ${c.name}`);
+  L.push(`• Telefoon: ${c.tel}`);
+  L.push(`• E-mail: ${c.mail}`);
+  L.push(`• Woning: ± ${state.m2} m², afwerking ${rateLabel()}`);
+  L.push(`• Bouwgrond: ${state.land==='have' ? 'al in bezit ('+fmt(state.landPrice)+')' : 'nog op zoek'}`);
+  L.push(`• Regio: ${state.region}`);
+  if(state.budget>0) L.push(`• Budget: ${fmt(state.budget)}`);
+  L.push(`• Timing: ${state.timing}`);
+  L.push(`• Geschat totaalbudget: ${fmt(total)} (incl. btw)`);
+  return L.join('\n');
+}
+function rateLabel(){ return state.rate<=1150?'basis':state.rate>=1550?'premium':'comfort'; }
+function getContact(){
+  return {
+    name: document.getElementById('cName').value.trim() || '—',
+    tel:  document.getElementById('cTel').value.trim()  || '—',
+    mail: document.getElementById('cMail').value.trim() || '—',
+  };
+}
+function buildLinks(){
+  const txt = summaryText();
+  document.getElementById('waBtn').href =
+    `https://wa.me/${ADVISOR.whatsapp}?text=${encodeURIComponent(txt)}`;
+  document.getElementById('mailBtn').href =
+    `mailto:${ADVISOR.email}?subject=${encodeURIComponent('Nieuwe bouwaanvraag via de budgetcheck')}&body=${encodeURIComponent(txt)}`;
+}
+
+function validateAndGate(){
+  const c = getContact();
+  const consent = document.getElementById('cConsent').checked;
+  const err = document.getElementById('err');
+  const ok = c.name!=='—' && c.tel!=='—' && c.mail!=='—' && consent;
+  ['waBtn','mailBtn'].forEach(id=> document.getElementById(id).setAttribute('aria-disabled', ok?'false':'true'));
+  if(!ok){
+    const missing=[];
+    if(c.name==='—') missing.push('naam'); if(c.tel==='—') missing.push('telefoon');
+    if(c.mail==='—') missing.push('e-mail'); if(!consent) missing.push('toestemming');
+    err.textContent = 'Vul nog even in: ' + missing.join(', ') + '.';
+  } else { err.textContent=''; }
+  return ok;
+}
+
+/* ============================================================
+   4) Events
+   ============================================================ */
+function bindSeg(id, key, cast){
+  const seg = document.getElementById(id);
+  seg.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    [...seg.querySelectorAll('button')].forEach(x=>x.setAttribute('aria-pressed','false'));
+    b.setAttribute('aria-pressed','true');
+    state[key] = cast(b);
+    if(id==='sizeSeg'){ document.getElementById('m2').value=state.m2; document.getElementById('m2val').textContent=state.m2+' m²'; }
+    render();
+  });
+}
+bindSeg('sizeSeg','m2', b=>+b.dataset.m2);
+bindSeg('finishSeg','rate', b=>+b.dataset.rate);
+
+document.getElementById('m2').addEventListener('input', e=>{
+  state.m2 = +e.target.value;
+  document.getElementById('m2val').textContent = state.m2+' m²';
+  document.querySelectorAll('#sizeSeg button').forEach(x=>x.setAttribute('aria-pressed','false'));
+  render();
+});
+
+document.getElementById('landToggle').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#landToggle button').forEach(x=>x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true');
+  state.land = b.dataset.land;
+  const lbl = document.getElementById('landLbl');
+  const inp = document.getElementById('landPrice');
+  if(state.land==='search'){ lbl.textContent='Verwachte prijs grond (schatting)'; inp.placeholder='bv. 130.000'; }
+  else { lbl.textContent='Prijs van de grond'; inp.placeholder='bv. 150.000'; }
+  render();
+});
+
+document.getElementById('landPrice').addEventListener('input', e=>{ state.landPrice=parseEuro(e.target.value); render(); });
+document.getElementById('budget').addEventListener('input', e=>{ state.budget=parseEuro(e.target.value); render(); });
+document.getElementById('region').addEventListener('change', e=>{ state.region=e.target.value; render(); });
+document.getElementById('timing').addEventListener('change', e=>{ state.timing=e.target.value; render(); });
+
+['cName','cTel','cMail','cConsent'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{ validateAndGate(); buildLinks(); });
+});
+['waBtn','mailBtn'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', e=>{
+    if(!validateAndGate()){ e.preventDefault(); }
+    else { buildLinks(); }
+  });
+});
+
+/* init */
+render(); validateAndGate();
+</script>
+</body>
+</html>
